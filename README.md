@@ -1,73 +1,128 @@
-# Welcome to your Lovable project
+# Sentinel — Real-Time Disaster Monitoring Frontend
 
-## Project info
+A real-time disaster monitoring and response command center that fuses **social media intelligence**, **citizen IVR/GPS reports**, and **satellite imagery change detection** into a unified dashboard with a 3D CesiumJS globe.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+> **Backend repo:** [ManishPingale7/Sentinel](https://github.com/ManishPingale7/Sentinel)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+### Command Center (`/command-center`)
+Interactive **CesiumJS 3D globe** with layered disaster markers (social, IVR, satellite). Live metrics panel, real-time WebSocket feed, auto-rotate globe, day/night toggle, layer toggling, and flood inspection panel. Subscribes to Firebase for IVR + app reports in real-time.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Social Intelligence (`/social`)
+Social media feed aggregator pulling from Twitter, Reddit, News, Telegram, and Instagram. NLP-classified by disaster type, urgency, and credibility. Trending hashtags, platform filters, and live updates via WebSocket.
 
-Changes made via Lovable will be committed automatically to this repo.
+### IVR & GPS Reports (`/ivr`)
+Citizen-submitted disaster reports received through IVR (phone) calls. Audio playback from Firebase Storage, transcripts, GPS locations, and severity levels. Real-time updates via Firestore `onSnapshot`.
 
-**Use your preferred IDE**
+### Satellite Detection (`/satellite`)
+Satellite-based flood change detection using the **ai4g-flood** SAR model. Before/during image comparison slider, flood polygon overlays, per-tile inspection. Fetches CEMS events and flood prediction outputs from the satellite API.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Alerts Management (`/alerts`)
+CRUD interface for managing disaster alerts — create, edit, delete. Stored in Firebase Firestore with severity levels (critical/high/medium/low), district targeting, and expiration dates.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+| Category | Technologies |
+|---|---|
+| **Framework** | React 18, TypeScript, Vite (SWC) |
+| **Styling** | Tailwind CSS, shadcn/ui (Radix primitives), Framer Motion |
+| **3D Globe** | CesiumJS v1.125, vite-plugin-cesium |
+| **Data** | TanStack React Query, React Router v6, WebSocket |
+| **Backend Services** | Firebase (Firestore + Storage), FastAPI backends |
+| **Charts** | Recharts |
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Prerequisites
+- **Node.js** v18+ and **npm** (or **bun**)
+- Backend APIs running (see [Backend repo](https://github.com/ManishPingale7/Sentinel))
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/JagjitBhosale/Sentinel-Frontend.git
+cd Sentinel-Frontend
+
+# Install dependencies
+npm install
+
+# Start the dev server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:5173`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Backend APIs Required
 
-**Use GitHub Codespaces**
+| Service | URL | Purpose |
+|---|---|---|
+| Feed & Map API | `http://localhost:8000` | Social media feed, disaster map reports, heatmap, WebSocket stream |
+| Satellite API | `http://localhost:8001` | CEMS flood events, satellite imagery, GeoJSON flood polygons |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Start both backends from the [Sentinel](https://github.com/ManishPingale7/Sentinel) repo:
 
-## What technologies are used for this project?
+```bash
+cd "Sentinel Backend"
+uvicorn backend.feed_and_map_api:app --reload --port 8000
+uvicorn backend.satellite_api:app --reload --port 8001
+```
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Project Structure
 
-## How can I deploy this project?
+```
+src/
+├── components/
+│   ├── layout/          # Navbar
+│   ├── layers/          # AppLayer, IVRLayer, SatelliteLayer, SocialLayer
+│   ├── ui/              # shadcn/ui + custom components (FloodInspectorPanel, GlassCard, etc.)
+│   ├── dashboard/       # MetricsPanel
+│   ├── GlobeViewer.tsx  # CesiumJS 3D globe
+│   ├── SidePanel.tsx    # Collapsible side panel
+│   └── DisasterPopup.tsx
+├── pages/
+│   ├── Admin.tsx         # Landing page
+│   ├── CommandCenter.tsx # Main dashboard with globe
+│   ├── SocialPage.tsx    # Social media intelligence
+│   ├── IVRPage.tsx       # IVR & GPS reports
+│   ├── SatellitePage.tsx # Satellite flood detection
+│   └── AlertsPage.tsx    # Alert management
+├── services/
+│   ├── api.ts            # API client (feed + satellite)
+│   └── firebase.ts       # Firebase config & initialization
+├── hooks/
+│   ├── useDisasterData.ts # Firebase realtime data hook
+│   └── useWebSocket.ts    # WebSocket connection with auto-reconnect
+├── types/
+│   └── disaster.ts        # TypeScript interfaces
+└── lib/
+    └── api.ts             # Additional API utilities
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+## Available Scripts
 
-Yes, you can!
+| Script | Description |
+|---|---|
+| `npm run dev` | Start Vite dev server with HMR |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run tests with Vitest |
+| `npm run test:watch` | Run tests in watch mode |
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## License
+
+Private project — all rights reserved.
